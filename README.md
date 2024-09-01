@@ -9,7 +9,7 @@ Backend can be started by running `./gradlew bootRun`. Default port is 8080.
 ## Frontend
 Frontend can be started by executing `npm install` and then `ng serve`. By default it will run on `localhost:4200`.
 
-### Used technology and versions
+## Used technology and versions
 Java - 21
 Spring Boot - 3.3.3
 Angular - 17
