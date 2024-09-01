@@ -1,0 +1,89 @@
+<h2 mat-dialog-title>Add filter</h2>
+<mat-dialog-content>
+    <form [formGroup]="filterForm">
+        <mat-grid-list cols="6" gutterSize="16px" rowHeight="4rem">
+            <div>
+                <mat-grid-tile [colspan]="1">
+                    <label>Filter name</label>
+                </mat-grid-tile>
+
+                <mat-grid-tile [colspan]="1">
+                    <mat-form-field>
+                        <input matInput placeholder="Name" formControlName="filterName">
+                    </mat-form-field>
+                </mat-grid-tile>
+
+                <mat-grid-tile [colspan]="4"></mat-grid-tile>
+            </div>
+
+            <div formArrayName="criterias">
+                <mat-grid-tile [colspan]="1">
+                    <label>Criteria</label>
+                </mat-grid-tile>
+
+                @for (criteria of criteriasArray.controls; let i = $index; track criteria) {
+                    <div [formGroupName]="i" class="criteria-row">
+                        @if (i != 0) {
+                            <mat-grid-tile [colspan]="1"></mat-grid-tile>
+                        }
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-select formControlName="type" (selectionChange)="criteriaTypeSelected(i, criteria.value)">
+                                <mat-option value="AMOUNT">Amount</mat-option>
+                                <mat-option value="TITLE">Title</mat-option>
+                                <mat-option value="DATE">Date</mat-option>
+                            </mat-select>
+                        </mat-grid-tile>
+                
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-select formControlName="comparator">
+                                @if (getCurrentCriteriaType(i) === CriteriaType[CriteriaType.AMOUNT]) {
+                                    <mat-option value="MORE_THAN">More</mat-option>
+                                    <mat-option value="LESS">Less</mat-option>
+                                } @else if (getCurrentCriteriaType(i) === CriteriaType[CriteriaType.TITLE]) {
+                                    <mat-option value="STARTS_WITH">Starts with</mat-option>
+                                    <mat-option value="CONTAINS">Contains</mat-option>
+                                } @else {
+                                    <mat-option value="FROM">From</mat-option>
+                                    <mat-option value="TO">To</mat-option>
+                                }
+                            </mat-select>
+                        </mat-grid-tile>
+                
+                        <mat-grid-tile [colspan]="2" [rowspan]="1">
+                            <mat-form-field>
+                                @if (criteria.value.type === CriteriaType[CriteriaType.DATE]) {
+                                    <div class="datepicker-container">
+                                        <input class="datepicker-container" matInput [matDatepicker]="picker" formControlName="value" placeholder="Choose a date">
+                                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                        <mat-datepicker #picker></mat-datepicker>
+                                    </div>
+                                } @else {
+                                    <input matInput formControlName="value" placeholder="Enter value">
+                                }
+                            </mat-form-field>
+                        </mat-grid-tile>
+                
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <button mat-mini-fab (click)="removeCriteriaRow(i)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </mat-grid-tile>
+                    </div>
+                }
+            </div>
+
+            <div>
+                <mat-grid-tile colspan="2"></mat-grid-tile>
+                <mat-grid-tile colspan="1">
+                    <button mat-raised-button color="primary" (click)="addCriteriaRow()">+ Add Row</button>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="2"></mat-grid-tile>
+            </div>
+        </mat-grid-list>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="center" class="actions">
+    <button mat-button mat-dialog-close>Close</button>
+    <button mat-raised-button color="primary" (click)="saveFilter()">Save</button>
+</mat-dialog-actions>

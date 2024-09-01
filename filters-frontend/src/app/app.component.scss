@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 4rem;
+}
+
+.table-button {
+  padding-bottom: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+tr.detail-row {
+  height: 0;
+}
+
+tr.element-row {
+  background: #ececec;
+}
+
+.element-detail {
+  overflow: hidden;
+  display: flex;
+  .mdc-data-table_cell {
+    padding: 0;
+  }
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+}
