@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      file: filter/changelog.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: criteria/changelog.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: test_data.sql
+      relativeToChangelogFile: true

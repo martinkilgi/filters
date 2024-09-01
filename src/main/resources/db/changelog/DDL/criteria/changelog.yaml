@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: criteria.sql
+      relativeToChangelogFile: true

@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: filter.sql
+      relativeToChangelogFile: true
