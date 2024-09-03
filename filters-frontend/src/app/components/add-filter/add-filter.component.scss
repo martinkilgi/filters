@@ -8,3 +8,27 @@ h2, .actions {
     align-items: center;
     justify-content: center;
 }
+
+mat-form-field {
+    width: 100%;
+}
+
+.part-size {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .part-size {
+        display: inline-block; 
+    }
+
+    .full-size { 
+        display: none;
+    }
+
+    .datepicker-container {
+        input {
+            display: none;
+        }
+    }
+}

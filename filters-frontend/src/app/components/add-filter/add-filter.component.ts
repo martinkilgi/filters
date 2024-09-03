@@ -1,12 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormArray, FormControl, FormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Criteria } from '../../model/criteria';
 import { CriteriaType } from '../../model/criteria-type';
 import { CriteriaComparator } from '../../model/criteria-comparator';
 import { SaveableCriteria } from '../../model/saveable-criteria';
 import { Filter } from '../../model/filter';
 import { FilterService } from '../../service/filter.service';
+import { MatDialogRef } from '@angular/material/dialog';
+import { NotificationUtilities } from '../../util/notification.service';
 
 @Component({
   selector: 'app-add-filter',
@@ -15,27 +16,28 @@ import { FilterService } from '../../service/filter.service';
 })
 export class AddFilterComponent implements OnInit {
 
-  private _snackBar = inject(MatSnackBar);
+  @Output() savedFilterEvent = new EventEmitter<Filter>();
 
   CriteriaType = CriteriaType;
   CriteriaComparator = CriteriaComparator;
 
   filterForm: FormGroup;
-  criterias: SaveableCriteria[] = [];
 
   constructor(
+    private dialogRef: MatDialogRef<AddFilterComponent>,
     private formBuilder: UntypedFormBuilder,
-    private filterService: FilterService
+    private filterService: FilterService,
+    private notificationUtil: NotificationUtilities
   ) {}
 
   ngOnInit(): void {
     this.filterForm = this.formBuilder.group({
-      filterName: this.formBuilder.control('', [Validators.required]),
+      filterName: this.formBuilder.control(null, [Validators.required]),
       criterias: this.formBuilder.array([
         this.formBuilder.group({
           type: this.formBuilder.control(CriteriaType[CriteriaType.AMOUNT], [Validators.required]),
           comparator: this.formBuilder.control(CriteriaComparator.MORE_THAN, [Validators.required]),
-          value: this.formBuilder.control(4, [Validators.required])
+          value: this.formBuilder.control(null, [Validators.required])
         })
       ])
     })
@@ -64,7 +66,7 @@ export class AddFilterComponent implements OnInit {
     const newCriteria = this.formBuilder.group({
       type: this.formBuilder.control(CriteriaType[CriteriaType.AMOUNT], [Validators.required]),
       comparator: this.formBuilder.control(CriteriaComparator.MORE_THAN, [Validators.required]),
-      value: this.formBuilder.control(4, [Validators.required])
+      value: this.formBuilder.control(null, [Validators.required])
     });
 
     this.criteriasArray.controls.push(newCriteria);
@@ -76,32 +78,55 @@ export class AddFilterComponent implements OnInit {
   }
 
   saveFilter(): void {
-    const criteriasFormArray: FormArray = this.filterForm.get('criterias') as FormArray;
-    const saveableCriterias: SaveableCriteria[] = (criteriasFormArray.controls as FormControl[]).map((control: FormControl) => control.value);
+    if (!this.getFormErrors(this.filterForm)) {
+      const criteriasFormArray: FormArray = this.filterForm.get('criterias') as FormArray;
+      const saveableCriterias: SaveableCriteria[] = (criteriasFormArray.controls as FormControl[]).map((control: FormControl) => control.value);
 
-    const criterias = saveableCriterias.map(criteria => {
-      return <Criteria>{
-        type: criteria.type,
-        comparator: criteria.comparator,
-        ...(criteria.type.toString() === CriteriaType[CriteriaType.AMOUNT] ? { amountValue: criteria.value } : {}),
-        ...(criteria.type.toString() === CriteriaType[CriteriaType.TITLE] ? { titleValue: criteria.value } : {}),
-        ...(criteria.type.toString() === CriteriaType[CriteriaType.DATE] ? { dateValue: criteria.value } : {}),
-      };
+      const criterias = saveableCriterias.map(criteria => {
+        return <Criteria>{
+          type: criteria.type,
+          comparator: criteria.comparator,
+          ...(criteria.type.toString() === CriteriaType[CriteriaType.AMOUNT] ? { amountValue: criteria.value } : {}),
+          ...(criteria.type.toString() === CriteriaType[CriteriaType.TITLE] ? { titleValue: criteria.value } : {}),
+          ...(criteria.type.toString() === CriteriaType[CriteriaType.DATE] ? { dateValue: criteria.value } : {}),
+        };
+      })
+
+      const saveableFilter: Filter = {
+        name: this.filterForm.get('filterName')?.value,
+        criterias: criterias
+      }
+
+      this.filterService.saveFilter(saveableFilter).subscribe({
+        next: (filter: Filter) => {
+          this.closeDialog(filter);
+        },
+        error: () => {
+          this.notificationUtil.openSnackbar("Error occured when saving a filter!", "Error!");
+        },
+        complete: () => {
+          this.notificationUtil.openSnackbar("Filter saved!", "Success!");
+        }
+      });
+    } else {
+      this.notificationUtil.openSnackbar("Fields are invalid", "Error!");
+    }
+  }
+
+  private getFormErrors(form: FormGroup): boolean {
+    let errorsExist: boolean = false;
+    Object.keys(form.controls).forEach(key => {
+      const controlErrors = form.get(key)?.errors;
+      if (controlErrors != null) {
+        errorsExist = true;
+      }
     })
 
-    const saveableFilter: Filter = {
-      name: this.filterForm.get('filterName')?.value,
-      criterias: criterias
-    }
+    return errorsExist;
+  }
 
-    this.filterService.saveFilter(saveableFilter).subscribe({
-      next: () => {
-        this._snackBar.open("Filter saved!");
-      },
-      error: () => {
-        this._snackBar.open("Error occured when saving a filter!");
-      }
-    });
+  private closeDialog(filter: Filter) {
+    this.dialogRef.close({ data: filter });
   }
 
 }

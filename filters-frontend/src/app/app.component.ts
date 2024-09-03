@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FilterService } from './service/filter.service';
 import { Filter } from './model/filter';
 import { Subscription } from 'rxjs';
@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddFilterComponent } from './components/add-filter/add-filter.component';
 import { state, style, transition, animate, trigger } from '@angular/animations';
 import { CriteriaType } from './model/criteria-type';
+import { ScrollingUtilities } from './util/scroll.service';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +21,6 @@ import { CriteriaType } from './model/criteria-type';
   ],
 })
 export class AppComponent implements OnInit, OnDestroy {
-  readonly dialog = inject(MatDialog);
 
   CriteriaType = CriteriaType;
 
@@ -32,7 +32,9 @@ export class AppComponent implements OnInit, OnDestroy {
   filtersSub: Subscription = new Subscription();
 
   constructor(
-    private filterService: FilterService
+    private dialog: MatDialog,
+    private filterService: FilterService,
+    private scrollingUtilities: ScrollingUtilities
   ) { }
 
   ngOnInit(): void {
@@ -42,7 +44,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   openAddFilterDialog() {
-    this.dialog.open(AddFilterComponent, {width: '1200px'});
+    const dialogRef = this.dialog.open(AddFilterComponent, { width: '1200px' });
+
+    dialogRef.afterClosed().subscribe(filter => {
+      if (filter) {
+        this.filters = [...this.filters, filter.data];
+        this.scrollingUtilities.scrollToBottom();
+      }
+    });
   }
 
   ngOnDestroy(): void {

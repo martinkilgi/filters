@@ -2,6 +2,7 @@ package com.projects.filters.application.controller;
 
 import com.projects.filters.application.FilterService;
 import com.projects.filters.application.model.dto.FilterDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class FilterController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<FilterDto> saveFilter(@RequestBody FilterDto filterDto) {
+    public ResponseEntity<FilterDto> saveFilter(@Valid @RequestBody FilterDto filterDto) {
         return ResponseEntity.ok().body(filterService.saveFilter(filterDto));
     }
 }
