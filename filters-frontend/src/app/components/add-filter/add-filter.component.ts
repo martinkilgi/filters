@@ -34,14 +34,9 @@ export class AddFilterComponent implements OnInit {
     this.filterForm = this.formBuilder.group({
       filterName: this.formBuilder.control(null, [Validators.required]),
       criterias: this.formBuilder.array([
-        this.formBuilder.group({
-          type: this.formBuilder.control(CriteriaType[CriteriaType.AMOUNT], [Validators.required]),
-          comparator: this.formBuilder.control(CriteriaComparator.MORE_THAN, [Validators.required]),
-          value: this.formBuilder.control(null, [Validators.required])
-        })
+        this.buildCriteriaForm()
       ])
-    })
-
+    });
   }
 
   get criteriasArray() {
@@ -63,12 +58,7 @@ export class AddFilterComponent implements OnInit {
   }
 
   addCriteriaRow(): void {
-    const newCriteria = this.formBuilder.group({
-      type: this.formBuilder.control(CriteriaType[CriteriaType.AMOUNT], [Validators.required]),
-      comparator: this.formBuilder.control(CriteriaComparator.MORE_THAN, [Validators.required]),
-      value: this.formBuilder.control(null, [Validators.required])
-    });
-
+    const newCriteria = this.buildCriteriaForm();
     this.criteriasArray.controls.push(newCriteria);
   }
 
@@ -123,6 +113,14 @@ export class AddFilterComponent implements OnInit {
     })
 
     return errorsExist;
+  }
+
+  private buildCriteriaForm(): FormGroup {
+    return this.formBuilder.group({
+      type: this.formBuilder.control(CriteriaType[CriteriaType.AMOUNT], [Validators.required]),
+      comparator: this.formBuilder.control(CriteriaComparator.MORE_THAN, [Validators.required]),
+      value: this.formBuilder.control(null, [Validators.required])
+    })
   }
 
   private closeDialog(filter: Filter) {

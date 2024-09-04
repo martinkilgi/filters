@@ -59,7 +59,21 @@
                                         <mat-datepicker #picker></mat-datepicker>
                                     </div>
                                 } @else {
-                                    <input matInput formControlName="value" placeholder="Value">
+                                    @if (criteria.value.type === CriteriaType[CriteriaType.AMOUNT]) {
+                                        <input 
+                                            matInput
+                                            formControlName="value"
+                                            type="number"
+                                            placeholder="Amount"
+                                        >
+                                    } @else {
+                                        <input 
+                                            matInput
+                                            formControlName="value"
+                                            type="text"
+                                            placeholder="Title"
+                                        >
+                                    }
                                 }
                             </mat-form-field>
                         </mat-grid-tile>
