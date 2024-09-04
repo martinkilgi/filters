@@ -61,7 +61,7 @@
                       {{ element.titleValue }}
                     </span>
                     <span *ngSwitchCase="CriteriaType[CriteriaType.DATE]">
-                      {{ element.dateValue }}
+                      {{ element.dateValue | date }}
                     </span>
                   </td>
                 </ng-container>
